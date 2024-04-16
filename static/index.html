@@ -1,9 +1,44 @@
 <html>
     <head>
         <title>VS Code Rocks!</title>
+        <script>
+            function sendCode() {
+                // 获取输入框的值
+                var code = document.getElementById('code').value;
+
+                // 创建一个新的请求
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '/login?code=' + code, true);
+                xhr.send();
+
+                xhr.onload = function() {
+                    if (xhr.status != 200) {
+                        alert('Failed to send code' + xhr.statusText);
+                    }
+                };
+            }
+
+            function triggerTest() {
+                // 创建一个新的请求
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '/test', true);
+                xhr.send();
+
+                xhr.onload = function() {
+                    if (xhr.status != 200) {
+                        alert('Failed to trigger test' + xhr.statusText);
+                    } else {
+                        alert(xhr.responseText);
+                    }
+                };
+            }
+        </script>
     </head>
     <body>
         <h1>VS Code can do that?</h1>
         <p>Yes it can!</p>
+        <input type="text" id="code" placeholder="Enter code">
+        <button onclick="sendCode()">Send Code</button>
+        <button onclick="triggerTest()">Trigger Test</button>
     </body>
 </html>

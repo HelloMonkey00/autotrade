@@ -16,12 +16,41 @@
             },
             "args": [
                 "run",
-                "--host","0.0.0.0",
-                "--port","9000",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "9000",
                 "--no-debugger",
                 "--no-reload"
             ],
             "jinja": true
+        },
+        {
+            "name": "Docker: Python - Flask",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "docker-run: debug",
+            "python": {
+                "pathMappings": [
+                    {
+                        "localRoot": "${workspaceFolder}",
+                        "remoteRoot": "/app"
+                    }
+                ],
+                "projectType": "flask"
+            }
+        },
+        {
+            "name": "Python Debugger: Remote Attach",
+            "type": "debugpy",
+            "request": "attach",
+            "port": 5678,
+            "host": "localhost",
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "/app"
+                }
+            ]
         }
-    ]
-}
+    }
