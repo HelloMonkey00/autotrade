@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Trading</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Stock Trading</h1>
+    </header>
+    <main>
+        <section id="auth">
+            <h2>Authentication</h2>
+            <button id="login-btn">Login</button>
+            <button id="verify-btn">Verify</button>
+            <label for="env-switch">Environment:</label>
+            <input type="checkbox" id="env-switch">
+            <p>Login Status: <span id="login-status">Not Logged In</span></p>
+        </section>
+        <section id="portfolio">
+            <h2>Portfolio</h2>
+            <table id="portfolio-table">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+        <section id="trade">
+            <h2>Trade</h2>
+            <input type="text" id="symbol-input" placeholder="Enter stock symbol">
+            <div id="chart-container"></div>
+            <p>Latest Price: <span id="latest-price"></span></p>
+            <button id="buy-btn">Buy</button>
+            <button id="sell-btn">Sell</button>
+            <button id="query-btn">Query Order</button>
+            <button id="cancel-btn">Cancel Order</button>
+        </section>
+        <section id="news">
+            <h2>Latest News</h2>
+            <div id="news-container"></div>
+        </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

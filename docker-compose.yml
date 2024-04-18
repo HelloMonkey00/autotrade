@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3'
 
 services:
   flask:
@@ -8,11 +8,10 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - 5002:5002
+    depends_on:
+      - moomoo
   moomoo:
-    image: moomooopend814108ubuntu16:0.0.4
-    ports:
-      - 11111:11111
-      - 22222:22222
+    image: moomooopend814108ubuntu16:0.0.5
     environment:
       - LOGIN_ACCOUNT=101603703
       - LOGIN_PWD_MD5=94a2ee1dd317b3b2b4341cce6379fca3
