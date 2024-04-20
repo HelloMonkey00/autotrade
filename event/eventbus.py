@@ -1,3 +1,4 @@
+from asyncio.log import logger
 from typing import Type, Callable, Dict, List
 
 class EventBus:
@@ -13,6 +14,10 @@ class EventBus:
         event_type = type(event)
         if event_type in self.subscribers:
             for callback in self.subscribers[event_type]:
-                callback(event)
+                try:
+                    callback(event)
+                except Exception as e:
+                    logger.error(f"Error in event handler {callback.__name__}: {e}")
+                    raise e
 
 event_bus = EventBus()

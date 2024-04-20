@@ -1,15 +1,28 @@
 from flask import Blueprint, jsonify, request
+from backend.support.config import ConfigManager
 from event.event import *
 from event.eventbus import event_bus
+from backend.support.utils import convert_to_OrderType, convert_to_OrderSide
 
 route_bp = Blueprint('route', __name__)
 
-@route_bp.route('/trade/buy', methods=['POST'])
+@route_bp.route('/trade/order', methods=['POST'])
 def place_order():
     order_data = request.get_json()
-    event = PlaceOrderEvent(datetime.now(), ticker=order_data['symbol'], order_quantity=order_data['quantity'])
+    event = PlaceOrderEvent(datetime.now(), 
+                            ticker=order_data['symbol'], 
+                            order_quantity=order_data['quantity'], 
+                            order_price=order_data['price'], 
+                            order_type=convert_to_OrderType[order_data['order_type']], 
+                            order_side=convert_to_OrderSide[order_data['order_side']], 
+                            order_id=order_data['id'])
     event_bus.publish(event)
+    event_bus.publish(LogEvent('place_order:'+str(event), LogLevel.DEBUG))
     return jsonify({"message": "Order placed"})
+
+@route_bp.route('/enviroment', methods=['GET'])
+def get_environment():
+    return "SIMULATION" if ConfigManager.get_instance().is_simulate() else "REAL";
 
 @route_bp.route('/trade/close', methods=['POST'])
 def close_position_route():

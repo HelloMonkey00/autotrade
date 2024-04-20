@@ -37,10 +37,6 @@ class PlaceOrderEvent(Event):
     order_price: Optional[float] = None
 
 @dataclass
-class UpdatePositionEvent(Event):
-    pass
-
-@dataclass
 class ClosePositionEvent(Event):
     pass
 
@@ -74,6 +70,7 @@ class GetStatusEvent(Event):
     pass
 
 class LogLevel(Enum):
+    DEBUG = 0
     INFO = 1
     ERROR = 2
     

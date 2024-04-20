@@ -10,17 +10,15 @@
     <header>
         <h1>Stock Trading Platform</h1>
         <section id="auth">
-            <div id="login-form">
+            <div id="login-form" style="display: none;">
                 <label for="username-input">Username:</label>
                 <input type="text" id="username-input" placeholder="Enter username">
                 <label for="password-input">Password:</label>
                 <input type="password" id="password-input" placeholder="Enter password">
                 <button id="login-btn">Login</button>
             </div>
-            <div id="logged-in-info" style="display: none;">
-                <label for="env-switch">Simulation:</label>
-                <input type="checkbox" id="env-switch">
-                <p>Login Status: <span id="login-status">Not Logged In</span></p>
+            <div id="logged-in-info">
+                <p>Environment: <span id="login-env"></span></p>
             </div>
         </section>
     </header>
@@ -52,12 +50,34 @@
                     <div class="trade-input">
                         <input type="text" id="symbol-input" placeholder="Enter stock symbol">
                         <input type="number" id="quantity-input" placeholder="Enter stock quantity">
+                        <input type="number" id="price-input" placeholder="Enter price">
+                        <select id="order-type-select">
+                            <option value="1">LMT (限价单)</option>
+                            <option value="2">MKT (市价单)</option>
+                            <option value="3">STL (止损限价单)</option>
+                            <option value="4">STP (止损市价单)</option>
+                            <option value="5">LIT (限价止盈单)</option>
+                            <option value="6">MIT (市价止盈单)</option>
+                            <option value="7">TSL (跟踪止损限价单)</option>
+                            <option value="8">TS (跟踪止损市价单)</option>
+                        </select>
                         <button id="buy-btn">Buy</button>
-                        <button id="close-position-btn">Close Position</button>
+                        <button id="sell-btn">Sell</button>
                     </div>
                     <div class="trade-actions">
-                        <button id="strategy1-btn">Strategy 1</button>
-                        <button id="strategy2-btn">Strategy 2</button>
+                        <table id="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Quantity</th>
+                                    <th>Amount</th>
+                                    <th>Side</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <button id="execute-orders-btn">Execute Orders</button>
                     </div>
                 </div>
             </section>

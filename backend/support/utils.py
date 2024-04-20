@@ -21,3 +21,21 @@ convert_from_OrderType_to_TrdType= {
     OrderType.TSL: TrdType.TRAILING_STOP_LIMIT,
     OrderType.TS: TrdType.TRAILING_STOP
 }
+
+convert_to_OrderType = {
+    '1': OrderType.LMT,
+    '2': OrderType.MKT,
+    '3': OrderType.STL,
+    '4': OrderType.STP,
+    '5': OrderType.LIT,
+    '6': OrderType.MIT,
+    '7': OrderType.TSL,
+    '8': OrderType.TS
+}
+
+convert_to_OrderSide = {
+    'BUY': OrderSide.BUY,
+    'SELL': OrderSide.SELL,
+    # 'SHORT': OrderSide.SHORT,
+    'COVER': OrderSide.COVER
+}

@@ -10,19 +10,24 @@ from moomoo import RET_OK, TrdEnv
 class RiskManager:
     _instance = None
 
-    def __new__(cls, *args, **kwargs):
+    @classmethod
+    def get_instance(cls):
         if not cls._instance:
-            cls._instance = super(RiskManager, cls).__new__(cls, *args, **kwargs)
-            cls._instance.__init__(*args, **kwargs)  # 初始化 _instance
+            cls._instance = cls()
         return cls._instance
     
     def __init__(self):
         self.locks = {}
+        self.used_order_ids = set()
 
     def lock(self, event: PlaceOrderEvent):
         # Get the lock for this ticker
         lock = self.locks.setdefault(event.ticker, threading.Lock())
         lock.acquire()
+
+    def check_duplicate(self, event: PlaceOrderEvent):
+        # Check if the order is a duplicate
+        pass
 
     def unlock(self, event: PlaceOrderEvent):
         # Get the lock for this ticker
@@ -35,8 +40,15 @@ class RiskManager:
         if simulate:
             return 0, 'Risk check passed'
         else:
+            # Check if the order is a duplicate
+            if event.order_id in self.used_order_ids:
+                event_bus.publish(LogEvent('Risk check failed: duplicate order_id', LogLevel.ERROR))
+                return -1, 'Risk check failed: duplicate order_id'
+            else:
+                self.used_order_ids.add(event.order_id)
+            # Check if the order quantity exceeds the maximum position
             acc_id = ConfigManager.get_instance().get_int('acc_id', None, 'MOOMOO')
-            trd_ctx = Context._instance.open()
+            trd_ctx = Context.get_instance().open()
             trd_type = convert_from_OrderType_to_TrdType[event.order_type]
             self.lock(event)
             ret, data = trd_ctx.acctradinginfo_query(order_type=trd_type, code=event.ticker, acc_id=acc_id,

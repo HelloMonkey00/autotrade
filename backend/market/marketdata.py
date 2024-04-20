@@ -1,10 +1,6 @@
-import random
 from flask_socketio import emit
-from flask import Blueprint, jsonify
 from event.event import *
 from event.eventbus import event_bus
-
-market_bp = Blueprint('market', __name__, url_prefix='/market')
 
 def update_latest_price(price_data):
     emit('update', price_data, namespace='/price')
