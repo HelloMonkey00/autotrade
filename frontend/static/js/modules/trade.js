@@ -1,33 +1,39 @@
 export class TradeManager {
     constructor() {
         this.symbolInput = document.getElementById('symbol-input');
+        this.quantityInput = document.getElementById('quantity-input');
         this.buyButton = document.getElementById('buy-btn');
-        this.sellButton = document.getElementById('sell-btn');
-        this.queryButton = document.getElementById('query-btn');
-        this.cancelButton = document.getElementById('cancel-btn');
+        this.closePositionButton = document.getElementById('close-position-btn');
+        this.strategy1Button = document.getElementById('strategy1-btn');
+        this.strategy2Button = document.getElementById('strategy2-btn');
     }
 
     init() {
         this.buyButton.addEventListener('click', () => this.buyStock());
-        this.sellButton.addEventListener('click', () => this.sellStock());
-        this.queryButton.addEventListener('click', () => this.queryOrder());
-        this.cancelButton.addEventListener('click', () => this.cancelOrder());
+        this.closePositionButton.addEventListener('click', () => this.closePosition());
+        this.strategy1Button.addEventListener('click', () => this.doStrategy(1));
+        this.strategy2Button.addEventListener('click', () => this.doStrategy(2));
+        this.symbolInput.addEventListener('input', this.doQuote);
     }
 
     buyStock() {
         const symbol = this.symbolInput.value;
+        const quantity = parseInt(this.quantityInput.value);
+        if (!symbol || !quantity) {
+            return;
+        }
         fetch('/api/trade/buy', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ symbol })
+            body: JSON.stringify({ symbol, quantity })
         });
     }
 
-    sellStock() {
+    closePosition() {
         const symbol = this.symbolInput.value;
-        fetch('/api/trade/sell', {
+        fetch('/api/trade/close', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -36,17 +42,27 @@ export class TradeManager {
         });
     }
 
-    queryOrder() {
-        fetch('/api/trade/query')
-            .then(response => response.json())
-            .then(data => {
-                alert(JSON.stringify(data));
-            });
+    doStrategy(x) {
+        fetch('/api/trade/strategy', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ x })
+        });
     }
 
-    cancelOrder() {
-        fetch('/api/trade/cancel', {
-            method: 'POST'
-        });
+    doQuote() {
+        const symbol = this.symbolInput.value;
+        if (symbol) {
+            // 发送查询请求
+            fetch(`/api/market/quote`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ symbol })
+            })
+        }
     }
 }

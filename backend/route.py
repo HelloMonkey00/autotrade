@@ -4,28 +4,24 @@ from event.eventbus import event_bus
 
 route_bp = Blueprint('route', __name__)
 
-@route_bp.route('/trade/order', methods=['POST'])
+@route_bp.route('/trade/buy', methods=['POST'])
 def place_order():
     order_data = request.get_json()
-    event = TradeOrderEvent(order_data)
+    event = PlaceOrderEvent(datetime.now(), ticker=order_data['symbol'], order_quantity=order_data['quantity'])
     event_bus.publish(event)
     return jsonify({"message": "Order placed"})
 
-@route_bp.route('/trade/query')
-def query_order_route():
-    event = QueryOrderEvent()
+@route_bp.route('/trade/close', methods=['POST'])
+def close_position_route():
+    close_position_data = request.get_json()
+    event = ClosePositionEvent(close_position_data)
     event_bus.publish(event)
-    return jsonify({"message": "Query submitted"})
+    return jsonify({"message": "Close position submitted"})
 
-@route_bp.route('/trade/cancel', methods=['POST'])
-def cancel_order_route():
-    event = CancelOrderEvent()
-    event_bus.publish(event)
-    return jsonify({"message": "Cancel request submitted"})
-
-@route_bp.route('/market/quote/<symbol>')
-def get_quote_route(symbol):
-    event = QuoteEvent(symbol)
+@route_bp.route('/market/quote')
+def get_quote_route():
+    quote_data = request.get_json()
+    event = QuoteEvent(quote_data)
     event_bus.publish(event)
     return jsonify({"message": "Quote request submitted"})
 
@@ -65,3 +61,6 @@ def get_status_route():
     event = GetStatusEvent()
     event_bus.publish(event)
     return jsonify({"message": "Get status request submitted"})
+
+if __name__ == '__main__':
+    pass

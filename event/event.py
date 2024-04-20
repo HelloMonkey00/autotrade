@@ -1,39 +1,53 @@
+from dataclasses import dataclass, field
+from typing import Dict, Optional
+from datetime import datetime
 from enum import Enum
-from dataclasses import dataclass
-from typing import Dict
-
-class EventType(Enum):
-    TRADE = "TRADE"
-    TRADE_ORDER = "TRADE_ORDER"
-    QUERY_ORDER = "QUERY_ORDER"
-    CANCEL_ORDER = "CANCEL_ORDER"
-    QUOTE = "QUOTE"
-    HISTORICAL_DATA = "HISTORICAL_DATA"
-    NEWS = "NEWS"
 
 @dataclass
 class Event:
-    type: EventType
+    event_timestamp: datetime
 
 @dataclass
 class TradeEvent(Event):
+    pass
+
+class OrderType(Enum):
+    LMT = 1 # 限价单
+    MKT = 2 # 市价单
+    STL = 3 # 止损限价单
+    STP = 4 # 止损市价单
+    LIT = 5 # 限价止盈单
+    MIT = 6 # 市价止盈单
+    TSL = 7 # 跟踪止损限价单
+    TS = 8 # 跟踪止损市价单
+    
+class OrderSide(Enum):
+    BUY = 1 # 买入
+    SELL = 2 # 卖出
+    SHORT = 3 # 卖空
+    COVER = 4 # 平仓
+    
+@dataclass
+class PlaceOrderEvent(Event):
     order_id: str
+    ticker: str
+    order_quantity: int
+    order_type: OrderType = OrderType.LMT
+    order_side: OrderSide = OrderSide.BUY
+    order_price: Optional[float] = None
 
 @dataclass
-class TradeOrderEvent(Event):
-    order_data: Dict
-
-@dataclass
-class QueryOrderEvent(Event):
+class UpdatePositionEvent(Event):
     pass
 
 @dataclass
-class CancelOrderEvent(Event):
+class ClosePositionEvent(Event):
     pass
 
 @dataclass
 class QuoteEvent(Event):
     symbol: str
+
 
 @dataclass
 class HistoricalDataEvent(Event):
@@ -58,3 +72,12 @@ class SetEnvEvent(Event):
 @dataclass
 class GetStatusEvent(Event):
     pass
+
+class LogLevel(Enum):
+    INFO = 1
+    ERROR = 2
+    
+@dataclass
+class LogEvent(Event):
+    message: str
+    log_level: LogLevel = LogLevel.INFO

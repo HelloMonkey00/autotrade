@@ -1,14 +1,12 @@
 export class AuthManager {
     constructor() {
         this.loginButton = document.getElementById('login-btn');
-        this.verifyButton = document.getElementById('verify-btn');
         this.envSwitch = document.getElementById('env-switch');
         this.loginStatus = document.getElementById('login-status');
     }
 
     init() {
         this.loginButton.addEventListener('click', () => this.login());
-        this.verifyButton.addEventListener('click', () => this.verify());
         this.envSwitch.addEventListener('change', () => this.toggleEnv());
     }
 
