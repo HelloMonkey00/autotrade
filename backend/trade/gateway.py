@@ -5,6 +5,7 @@ from moomoo import RET_OK, TrdEnv, TrdSide
 from backend.config import ConfigManager
 from backend.support.risk import RiskManager 
 from backend.support.utils import convert_from_OrderSide_to_TrdSide, convert_from_OrderType_to_TrdType
+import json
 
 def on_trade_order(tradeOrderEvent: PlaceOrderEvent):
     pwd_unlock = ConfigManager.get_instance().get('pwd_unlock', None, 'MOOMOO')
@@ -45,9 +46,11 @@ def on_get_account(event: GetAccountEvent):
         trd_ctx = Context.get_instance().open()
         ret, data = trd_ctx.get_acc_list()
         if ret == RET_OK:
-            event_bus.publish(LogEvent('get_acc_list success'+str(data), LogLevel.INFO))
+            for _, account in data.iterrows():
+                if account['trd_env'] == 'SIMULATE':
+                    account_data = account.to_dict()
+                    event_bus.publish(LogEvent('get_acc_list success:'+str(account_data), LogLevel.INFO))
         else:
-            print('get_acc_list error: ', data)
             event_bus.publish(LogEvent('get_acc_list error: ' + str(data), LogLevel.ERROR))
     finally:
         Context.get_instance().close(trd_ctx)

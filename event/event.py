@@ -21,11 +21,17 @@ class OrderType(Enum):
     TSL = 7 # 跟踪止损限价单
     TS = 8 # 跟踪止损市价单
     
+    def __str__(self):
+        return self.name
+    
 class OrderSide(Enum):
     BUY = 1 # 买入
     SELL = 2 # 卖出
     SHORT = 3 # 卖空
     COVER = 4 # 平仓
+    
+    def __str__(self):
+        return self.name
     
 @dataclass
 class PlaceOrderEvent(Event):
@@ -35,6 +41,7 @@ class PlaceOrderEvent(Event):
     order_type: OrderType = OrderType.LMT
     order_side: OrderSide = OrderSide.BUY
     order_price: Optional[float] = None
+
 
 @dataclass
 class ClosePositionEvent(Event):
@@ -50,7 +57,7 @@ class QuoteEvent(Event):
 
 @dataclass
 class HistoricalDataEvent(Event):
-    symbol: str
+    ticker: str
 
 @dataclass
 class NewsEvent(Event):
@@ -77,7 +84,7 @@ class LogLevel(Enum):
     INFO = 1
     ERROR = 2
 
-    def to_string(self):
+    def __str__(self):
         return self.name
     
 class LogEvent(Event):
@@ -90,4 +97,4 @@ class LogEvent(Event):
             self.event_timestamp = datetime.now()
 
     def to_dict(self):
-        return {'message': self.message, 'level': self.log_level.to_string(), 'timestamp': self.event_timestamp.strftime("%Y-%m-%d %H:%M:%S.%f")}
+        return {'message': self.message, 'level': str(self.log_level), 'timestamp': self.event_timestamp.strftime("%Y-%m-%d %H:%M:%S.%f")}

@@ -30,7 +30,7 @@ export class NewsManager {
 
         // 创建一个新的 li 元素并添加到 log-messages 元素的开始
         var newLi = document.createElement('li');
-        newLi.innerHTML = data['message'];
+        newLi.textContent = data['message'];
 
         // 根据日志级别设置不同的样式
         switch (data['level']) {
