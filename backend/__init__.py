@@ -1,2 +1,3 @@
-from .trade import gateway,position
-from .market import marketdata
+from flask_socketio import SocketIO
+
+socketio = SocketIO()

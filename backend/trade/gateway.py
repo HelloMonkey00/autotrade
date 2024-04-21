@@ -40,5 +40,18 @@ def on_trade_order(tradeOrderEvent: PlaceOrderEvent):
 def on_close_position(event: ClosePositionEvent):
     event_bus.publish(LogEvent('close_position', LogLevel.INFO))
 
+def on_get_account(event: GetAccountEvent):
+    try:
+        trd_ctx = Context.get_instance().open()
+        ret, data = trd_ctx.get_acc_list()
+        if ret == RET_OK:
+            event_bus.publish(LogEvent('get_acc_list success'+str(data), LogLevel.INFO))
+        else:
+            print('get_acc_list error: ', data)
+            event_bus.publish(LogEvent('get_acc_list error: ' + str(data), LogLevel.ERROR))
+    finally:
+        Context.get_instance().close(trd_ctx)
+
+event_bus.subscribe(GetAccountEvent, on_get_account)
 event_bus.subscribe(PlaceOrderEvent, on_trade_order)
 event_bus.subscribe(ClosePositionEvent, on_close_position)

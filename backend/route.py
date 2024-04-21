@@ -4,6 +4,8 @@ from event.event import *
 from event.eventbus import event_bus
 from backend.support.utils import convert_to_OrderType, convert_to_OrderSide
 from .config import ConfigManager
+from .market.marketdata import *
+from .trade.gateway import *
 
 
 route_bp = Blueprint('route', __name__)
@@ -24,6 +26,7 @@ def place_order():
 
 @route_bp.route('/environment', methods=['GET'])
 def get_environment():
+    event_bus.publish(GetAccountEvent(datetime.now()))
     return jsonify({"environment": "SIMULATION" if ConfigManager.get_instance().is_simulate() else "REAL"});
 
 @route_bp.route('/trade/close', methods=['POST'])

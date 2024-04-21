@@ -41,6 +41,9 @@ class ClosePositionEvent(Event):
     pass
 
 @dataclass
+class GetAccountEvent(Event):
+    pass
+@dataclass
 class QuoteEvent(Event):
     symbol: str
 
