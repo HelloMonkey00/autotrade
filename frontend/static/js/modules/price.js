@@ -1,11 +1,10 @@
 export class PriceManager {
     constructor() {
-        this.socket = null;
     }
 
     init() {
-        this.socket = io('/price');
-        this.socket.on('update', (data) => {
+        const socket = io('/price');
+        socket.on('update', (data) => {
             this.updateLatestPrice(data);
         });
     }

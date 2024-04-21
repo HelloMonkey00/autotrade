@@ -73,8 +73,18 @@ class LogLevel(Enum):
     DEBUG = 0
     INFO = 1
     ERROR = 2
+
+    def to_string(self):
+        return self.name
     
-@dataclass
 class LogEvent(Event):
-    message: str
-    log_level: LogLevel = LogLevel.INFO
+    def __init__(self, message, log_level=LogLevel.INFO, event_timestamp = None):
+        self.message = message
+        self.log_level = log_level
+        if event_timestamp:
+            self.event_timestamp = event_timestamp
+        else:
+            self.event_timestamp = datetime.now()
+
+    def to_dict(self):
+        return {'message': self.message, 'level': self.log_level.to_string(), 'timestamp': self.event_timestamp.strftime("%Y-%m-%d %H:%M:%S.%f")}

@@ -1,7 +1,8 @@
 
-from event.event import OrderSide,OrderType
-from moomoo import TrdSide
+from event.event import LogEvent, OrderSide,OrderType
+from moomoo import TrdSide, SecurityFirm, TrdMarket
 from moomoo import OrderType as TrdType
+from datetime import datetime
 
 
 convert_from_OrderSide_to_TrdSide = {
@@ -39,3 +40,29 @@ convert_to_OrderSide = {
     # 'SHORT': OrderSide.SHORT,
     'COVER': OrderSide.COVER
 }
+
+convert_to_SecurityFirm = {
+    'FUTUSECURITIES': SecurityFirm.FUTUSECURITIES,
+    'FUTUINC': SecurityFirm.FUTUINC,
+    'FUTUSG': SecurityFirm.FUTUSG,
+    'FUTUAU': SecurityFirm.FUTUAU
+}
+
+convert_to_filter_trdmarket = {
+    'HK': TrdMarket.HK,      # 香港市场
+    'US': TrdMarket.US,      # 美国市场
+    'CN': TrdMarket.CN,      # 大陆市场
+    'HKCC': TrdMarket.HKCC,  # 香港A股通市场
+    'FUTURES': TrdMarket.FUTURES,  # 期货市场
+    'FUTURES_SIMULATE_HK': TrdMarket.FUTURES_SIMULATE_HK,
+    'FUTURES_SIMULATE_US': TrdMarket.FUTURES_SIMULATE_US,
+    'FUTURES_SIMULATE_SG': TrdMarket.FUTURES_SIMULATE_SG,
+    'FUTURES_SIMULATE_JP': TrdMarket.FUTURES_SIMULATE_JP
+}
+
+def format_log(event: LogEvent):
+    # 将时间格式化为包含毫秒的字符串
+    timestamp = event.event_timestamp.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+
+    # 在日志信息前面加上时间戳
+    return f"{timestamp} - {event.message}"

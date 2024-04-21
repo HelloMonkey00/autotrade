@@ -331,4 +331,4 @@ ASALocalRun/
 
 *.DS_Store
 env
-vscode
+.vscode

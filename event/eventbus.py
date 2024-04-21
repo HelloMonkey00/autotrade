@@ -17,7 +17,7 @@ class EventBus:
                 try:
                     callback(event)
                 except Exception as e:
-                    logger.error(f"Error in event handler {callback.__name__}: {e}")
+                    print(f"Error in event handler {callback.__name__}: {e}")
                     raise e
 
 event_bus = EventBus()

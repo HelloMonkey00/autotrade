@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify, request
-from backend.support.config import ConfigManager
+from .config import ConfigManager
 from event.event import *
 from event.eventbus import event_bus
 from backend.support.utils import convert_to_OrderType, convert_to_OrderSide
+from .config import ConfigManager
+
 
 route_bp = Blueprint('route', __name__)
 
@@ -20,9 +22,9 @@ def place_order():
     event_bus.publish(LogEvent('place_order:'+str(event), LogLevel.DEBUG))
     return jsonify({"message": "Order placed"})
 
-@route_bp.route('/enviroment', methods=['GET'])
+@route_bp.route('/environment', methods=['GET'])
 def get_environment():
-    return "SIMULATION" if ConfigManager.get_instance().is_simulate() else "REAL";
+    return jsonify({"environment": "SIMULATION" if ConfigManager.get_instance().is_simulate() else "REAL"});
 
 @route_bp.route('/trade/close', methods=['POST'])
 def close_position_route():

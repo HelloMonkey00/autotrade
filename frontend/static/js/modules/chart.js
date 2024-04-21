@@ -18,8 +18,8 @@ export class ChartManager {
             }
         });
 
-        this.socket = io('/chart');
-        this.socket.on('update', (data) => {
+        const socket = io('/chart');
+        socket.on('update', (data) => {
             this.updateChart(data);
         });
     }

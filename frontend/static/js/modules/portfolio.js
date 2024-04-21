@@ -1,11 +1,11 @@
 export class PortfolioManager {
     constructor() {
-        this.socket = null;
+        
     }
 
     init() {
-        this.socket = io('/portfolio');
-        this.socket.on('update', (data) => {
+        const socket = io('/portfolio');
+        socket.on('update', (data) => {
             this.updatePortfolio(data);
         });
     }
