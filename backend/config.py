@@ -14,8 +14,10 @@ class ConfigManager:
         if not hasattr(self, 'config'):
             # 获取 config.py 文件的绝对路径
             config_py_path = os.path.dirname(os.path.abspath(__file__))
+            # 获取上一级目录的路径
+            parent_dir = os.path.dirname(config_py_path)
             # 构造 config.ini 文件的绝对路径
-            config_ini_path = os.path.join(config_py_path, '..', config_file)
+            config_ini_path = os.path.join(parent_dir, config_file)
             self.config_file = config_ini_path
             self.config = configparser.ConfigParser()
             self.config.read(self.config_file)
