@@ -20,7 +20,7 @@ class ConfigManager:
             config_ini_path = os.path.join(parent_dir, config_file)
             self.config_file = config_ini_path
             self.config = configparser.ConfigParser()
-            self.config.read(self.config_file)
+            self.config.read(self.config_file, encoding="UTF-8")
 
     def get(self, key, default=None, namespace='DEFAULT'):
         # 先从环境变量中获取
