@@ -35,7 +35,7 @@ export class NewsManager {
         // 根据日志级别设置不同的样式
         switch (data['level']) {
             case 'INFO':
-                newLi.style.color = 'blue';
+                newLi.style.color = 'green';
                 break;
             case 'DEBUG':
                 newLi.style.color = 'gray';
