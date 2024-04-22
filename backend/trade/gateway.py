@@ -47,9 +47,14 @@ def on_get_account(event: GetAccountEvent):
         ret, data = trd_ctx.get_acc_list()
         if ret == RET_OK:
             for _, account in data.iterrows():
-                if account['trd_env'] == 'SIMULATE':
-                    account_data = account.to_dict()
-                    event_bus.publish(LogEvent('get_acc_list success:'+str(account_data), LogLevel.INFO))
+                if ConfigManager.get_instance().is_simulate():
+                    if account['trd_env'] == 'SIMULATE':
+                        account_data = account.to_dict()
+                        event_bus.publish(LogEvent('get_acc_list success:'+str(account_data), LogLevel.INFO))
+                else:
+                    if account['trd_env'] == 'REAL':
+                        account_data = account.to_dict()
+                        event_bus.publish(LogEvent('get_acc_list success:'+str(account_data), LogLevel.INFO))
         else:
             event_bus.publish(LogEvent('get_acc_list error: ' + str(data), LogLevel.ERROR))
     finally:
