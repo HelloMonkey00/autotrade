@@ -36,35 +36,34 @@ class RiskManager:
             lock.release()
 
     def check_risk(self, event: PlaceOrderEvent):
-        simulate = ConfigManager.get_instance().is_simulate()
-        if simulate:
-            return 0, 'Risk check passed'
+        # Check if the order is a duplicate
+        if event.order_id in self.used_order_ids:
+            event_bus.publish(LogEvent('Risk check failed: duplicate order_id', LogLevel.ERROR))
+            return -1, 'Risk check failed: duplicate order_id'
         else:
-            # Check if the order is a duplicate
-            if event.order_id in self.used_order_ids:
-                event_bus.publish(LogEvent('Risk check failed: duplicate order_id', LogLevel.ERROR))
-                return -1, 'Risk check failed: duplicate order_id'
-            else:
-                self.used_order_ids.add(event.order_id)
-            # Check if the order quantity exceeds the maximum position
-            acc_id = ConfigManager.get_instance().get_int('acc_id', 0, 'MOOMOO')
-            try:
-                trd_ctx = Context.get_instance().open()
-                trd_type = convert_from_OrderType_to_TrdType[event.order_type]
-                self.lock(event)
-                ret, data = trd_ctx.acctradinginfo_query(order_type=trd_type, code=event.ticker, acc_id=acc_id,
-                                                        price=event.order_price, trd_env=TrdEnv.REAL)
-                if ret != RET_OK:
-                    event_bus.publish(LogEvent('acctradinginfo_query error: ' + str(data), LogLevel.ERROR))
-                    return -1, 'Risk check failed: acctradinginfo_query error'
-                if data['max_position_sell'][0] < event.order_quantity:
-                    event_bus.publish(LogEvent('Risk check failed: max_position_sell+' + str(data['max_position_sell'][0]), LogLevel.ERROR))
-                    return -1, 'Risk check failed: max_position_sell+' + str(data['max_position_sell'][0])
-                else:
-                    event_bus.publish(LogEvent('Risk check passed', LogLevel.INFO))
-                    return 0, 'Risk check passed'
-            finally:
-                Context.get_instance().close(trd_ctx)
+            self.used_order_ids.add(event.order_id)
+        # Check if the order quantity exceeds the maximum position
+        acc_id = ConfigManager.get_instance().get_int('acc_id', 0, 'MOOMOO')
+        try:
+            trd_ctx = Context.get_instance().open()
+            trd_type = convert_from_OrderType_to_TrdType[event.order_type]
+            trd_env = TrdEnv.SIMULATE if ConfigManager.get_instance().is_simulate() else TrdEnv.REAL
+            ret, data = trd_ctx.acctradinginfo_query(order_type=trd_type, code=event.ticker, acc_id=acc_id,
+                                                    price=event.order_price, trd_env=trd_env)
+            if ret != RET_OK:
+                event_bus.publish(LogEvent('acctradinginfo_query error: ' + str(data), LogLevel.ERROR))
+                return -1, 'Risk check failed: acctradinginfo_query error'
+            if event.order_side == OrderSide.BUY and data['max_cash_buy'][0] < event.order_quantity:
+                event_bus.publish(LogEvent('Risk check failed: max_cash_buy+' + str(data['max_cash_buy'][0]), LogLevel.ERROR))
+                return -1, 'Risk check failed: max_cash_buy+' + str(data['max_cash_buy'][0])
+            if event.order_side == OrderSide.SELL and data['max_position_sell'][0] < event.order_quantity:
+                event_bus.publish(LogEvent('Risk check failed: max_position_sell+' + str(data['max_position_sell'][0]), LogLevel.ERROR))
+                return -1, 'Risk check failed: max_position_sell+' + str(data['max_position_sell'][0])
+        finally:
+            Context.get_instance().close(trd_ctx)
+        
+        event_bus.publish(LogEvent('Risk check passed', LogLevel.INFO))
+        return 0, 'Risk check passed'
 
 if __name__ == '__main__':
     risk = RiskManager()

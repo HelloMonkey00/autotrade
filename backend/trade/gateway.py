@@ -21,6 +21,7 @@ def on_trade_order(tradeOrderEvent: PlaceOrderEvent):
         trd_type = convert_from_OrderType_to_TrdType[tradeOrderEvent.order_type]
         trd_env = TrdEnv.SIMULATE if simulate else TrdEnv.REAL
         acc_id = ConfigManager.get_instance().get_int('acc_id', 0, 'MOOMOO')
+        RiskManager.get_instance().lock(tradeOrderEvent)
         ret, data = RiskManager.get_instance().check_risk(tradeOrderEvent)
         if ret != RET_OK:
             event_bus.publish(LogEvent('Risk check failed: ' + data, LogLevel.ERROR))
@@ -37,6 +38,7 @@ def on_trade_order(tradeOrderEvent: PlaceOrderEvent):
                 event_bus.publish(LogEvent('place_order error: ' + str(data), LogLevel.ERROR))
     finally:
         Context.get_instance().close(trd_ctx)
+        RiskManager.get_instance().unlock(tradeOrderEvent)
 
 def on_close_position(event: ClosePositionEvent):
     event_bus.publish(LogEvent('close_position', LogLevel.INFO))
