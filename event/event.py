@@ -32,6 +32,13 @@ class OrderSide(Enum):
     
     def __str__(self):
         return self.name
+
+class TrailType(Enum):
+    AMOUNT = 1
+    RATIO = 2
+
+    def __str__(self):
+        return self.name
     
 @dataclass
 class PlaceOrderEvent(Event):
@@ -41,6 +48,8 @@ class PlaceOrderEvent(Event):
     order_type: OrderType = OrderType.LMT
     order_side: OrderSide = OrderSide.BUY
     order_price: Optional[float] = None
+    trail_type: Optional[TrailType] = None
+    trail_value: Optional[float] = None
 
 
 @dataclass

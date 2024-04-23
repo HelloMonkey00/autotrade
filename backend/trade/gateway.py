@@ -4,7 +4,7 @@ from event.eventbus import event_bus
 from moomoo import RET_OK, TrdEnv, TrdSide
 from backend.config import ConfigManager
 from backend.support.risk import RiskManager 
-from backend.support.utils import convert_from_OrderSide_to_TrdSide, convert_from_OrderType_to_TrdType
+from backend.support.utils import convert_from_OrderSide_to_TrdSide, convert_from_OrderType_to_TrdType, convert_from_OrderSide_to_TrailType
 import json
 
 def on_trade_order(tradeOrderEvent: PlaceOrderEvent):
@@ -19,6 +19,7 @@ def on_trade_order(tradeOrderEvent: PlaceOrderEvent):
                 return
         trd_side = convert_from_OrderSide_to_TrdSide[tradeOrderEvent.order_side]
         trd_type = convert_from_OrderType_to_TrdType[tradeOrderEvent.order_type]
+        trail_type = convert_from_OrderSide_to_TrailType[tradeOrderEvent.trail_type]
         trd_env = TrdEnv.SIMULATE if simulate else TrdEnv.REAL
         acc_id = ConfigManager.get_instance().get_int('acc_id', 0, 'MOOMOO')
         RiskManager.get_instance().lock(tradeOrderEvent)
@@ -29,7 +30,7 @@ def on_trade_order(tradeOrderEvent: PlaceOrderEvent):
         else:
             ret, data = trd_ctx.place_order(tradeOrderEvent.order_price, order_type=trd_type, qty=tradeOrderEvent.order_quantity, 
                                             code=tradeOrderEvent.ticker, trd_side=trd_side, trd_env=trd_env,
-                                            acc_id = acc_id)
+                                            acc_id = acc_id, trail_type= trail_type, trail_value=tradeOrderEvent.trail_value)
             RiskManager.get_instance().unlock(tradeOrderEvent)
             if ret == RET_OK:
                 event_bus.publish(LogEvent('place_order success: ' + str(data), LogLevel.INFO))

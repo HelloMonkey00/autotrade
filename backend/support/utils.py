@@ -1,7 +1,8 @@
 
-from event.event import LogEvent, OrderSide,OrderType
+from event.event import LogEvent, OrderSide,OrderType, TrailType
 from moomoo import TrdSide, SecurityFirm, TrdMarket
 from moomoo import OrderType as TrdType
+from moomoo import TrailType as MooMooTrailType
 from datetime import datetime
 
 
@@ -21,6 +22,12 @@ convert_from_OrderType_to_TrdType= {
     OrderType.MIT: TrdType.MARKET_IF_TOUCHED,
     OrderType.TSL: TrdType.TRAILING_STOP_LIMIT,
     OrderType.TS: TrdType.TRAILING_STOP
+}
+
+convert_from_OrderSide_to_TrailType = {
+    None: None,
+    TrailType.AMOUNT: MooMooTrailType.AMOUNT,
+    TrailType.RATIO: MooMooTrailType.RATIO
 }
 
 convert_to_OrderType = {
@@ -66,3 +73,11 @@ def format_log(event: LogEvent):
 
     # 在日志信息前面加上时间戳
     return f"{timestamp} - {event.message}"
+
+def convert_to_TrailType_and_TrailValue(order_data):
+    if 'trail_amount' in order_data and order_data['trail_amount'] is not None:
+        return TrailType.AMOUNT, order_data['trail_amount']
+    elif 'trail_ratio' in order_data and order_data['trail_ratio'] is not None:
+        return TrailType.RATIO, order_data['trail_ratio']
+    else:
+        return None, None

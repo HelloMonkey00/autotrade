@@ -24,33 +24,16 @@
         </section>
     </header>
     <main>
-        <section id="chart-portfolio">
-            <canvas id="chart-container"></canvas>
-            <section id="portfolio">
-                <h2>Portfolio</h2>
-                <table id="portfolio-table">
-                    <thead>
-                        <tr>
-                            <th>Symbol</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
-                            <th>Value</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </section>
-        </section>
         <section id="trade-news">
             <section id="trade">
                 <h2>Trade</h2>
                 <div class="trade-container">
                     <div class="trade-info">
+                        <label for="symbol-input">Ticker:</label>
+                        <input type="text" id="symbol-input" placeholder="Enter stock symbol">
                         <p>Latest Price: <span id="latest-price"></span></p>
                     </div>
                     <div class="trade-input">
-                        <label for="symbol-input">Ticker:</label>
-                        <input type="text" id="symbol-input" placeholder="Enter stock symbol">
                         <label for="quantity-input">Quantity:</label>
                         <input type="number" id="quantity-input" placeholder="Enter stock quantity">
                         <label for="price-input">Price:</label>
@@ -65,6 +48,13 @@
                             <option value="7">TSL (跟踪止损限价单)</option>
                             <option value="8">TS (跟踪止损市价单)</option>
                         </select>
+                    </div>
+                    <div class="trade-extend-input">
+                        <label for="trail-amount-input">Trail Amount:</label>
+                        <input type="number" id="trail-amount-input" placeholder="Enter trail amount" value="1.0">
+                        <label for="trail-ratio-input">Trail Ratio:</label>
+                        <input type="number" id="trail-ratio-input" placeholder="Enter trail ratio" value="20">
+                        <label for="trail-ratio-input">%</label>
                     </div>
                     <div class="trade-buttons">
                         <button id="buy-btn">Buy</button>
@@ -84,9 +74,27 @@
                             <tbody></tbody>
                         </table>
                         <button id="execute-orders-btn">Execute Orders</button>
+                        <button id="close-all-btn">Close All Positions</button>
                     </div>
                 </div>
             </section>
+            <section id="portfolio">
+                <h2>Portfolio</h2>
+                <table id="portfolio-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+        </section>
+        <section id="chart-portfolio">
+            <canvas id="chart-container"></canvas>
             <section id="news">
                 <h2>Latest News</h2>
                 <div id="news-container">
