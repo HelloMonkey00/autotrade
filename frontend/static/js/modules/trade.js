@@ -36,13 +36,12 @@ export class TradeManager {
         }
 
         const order = { symbol, quantity, price, order_side: side, order_type: orderType, id: Date.now() };
-        this.orders.push(order);
 
         // Add the order to the table
         this.addOrderToTable(order);
 
-        // If order_type is "1" or "2", add two additional orders
-        if (orderType === "1" || orderType === "2") {
+        // If the order type is a Market or Limit order and the side is BUY, add two Trail orders
+        if ((orderType === "1" || orderType === "2") && side === "BUY") {
             let trailAmount = parseFloat(this.trailAmountInput.value);
             let trailRatio = parseFloat(this.trailRatioInput.value);
 
@@ -54,9 +53,8 @@ export class TradeManager {
                 trailRatio = 20;
             }
 
-            const extraOrder1 = { symbol, quantity, price: price, order_side: side, order_type: "8", id: Date.now() + 1, trail_amount: trailAmount };
-            const extraOrder2 = { symbol, quantity, price: price, order_side: side, order_type: "8", id: Date.now() + 2, trail_ratio: trailRatio };
-            this.orders.push(extraOrder1, extraOrder2);
+            const extraOrder1 = { symbol, quantity, price: 0, order_side: side, order_type: "8", id: Date.now() + 1, trail_type: "AMOUNT", trail_value: trailAmount };
+            const extraOrder2 = { symbol, quantity, price: 0, order_side: side, order_type: "8", id: Date.now() + 2, trail_type: "RATIO", trail_value: trailRatio };
 
             // Add the extra orders to the table
             this.addOrderToTable(extraOrder1);
@@ -64,33 +62,59 @@ export class TradeManager {
         }
     }
 
-
-    addOrderToTable(order) {
-        const row = document.createElement('tr');
-        row.id = `order-${order.id}`;
+    getPriceDisplay(order) {
         let priceDisplay;
         if (order.order_type === "8") {
-            if (!isNaN(order.trail_amount)) {
-                priceDisplay = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(order.trail_amount);
+            if (order.trail_type === "AMOUNT") {
+                priceDisplay = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(order.trail_value);
             } else {
-                priceDisplay = `${order.trail_ratio}%`;
+                priceDisplay = `${order.trail_value}%`;
             }
         } else {
             priceDisplay = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(order.price);
         }
-        row.innerHTML = `
-        <td>${order.symbol}</td>
-        <td>${order.quantity}</td>
-        <td>${priceDisplay}</td>
-        <td>${order.order_side}</td>
-        <td>${this.orderTypeMap[order.order_type]}</td>
-        <td><button data-order-id="${order.id}">Remove</button></td>
-    `;
-        this.ordersTableBody.appendChild(row);
+        return priceDisplay;
+    }
 
-        // Bind the removeOrderHandler to the Remove button
-        const removeButton = row.querySelector('button');
-        removeButton.addEventListener('click', () => this.removeOrder(order.id));
+    addOrderToTable(order) {
+        let existingOrder = this.orders.find(existingOrder => {
+            if (existingOrder.order_type === "8") {
+                return existingOrder.symbol === order.symbol && existingOrder.order_side === order.order_side && existingOrder.order_type === order.order_type && existingOrder.trail_type === order.trail_type && existingOrder.trail_value === order.trail_value;
+            } else {
+                return existingOrder.symbol === order.symbol && existingOrder.price === order.price && existingOrder.order_side === order.order_side && existingOrder.order_type === order.order_type;
+            }
+        });
+
+        if (existingOrder) {
+            // Update the existing order
+            existingOrder.quantity += order.quantity;
+
+            let existingRow = Array.from(this.ordersTableBody.children).find(row => row.id === `order-${existingOrder.id}`);
+            if (existingRow) {
+                const quantityCell = existingRow.children[1];
+                quantityCell.textContent = existingOrder.quantity;
+            }
+        } else {
+            // Add the new order to the orders array
+            this.orders.push(order);
+            // Add a new row
+            const row = document.createElement('tr');
+            row.id = `order-${order.id}`;
+            let priceDisplay = this.getPriceDisplay(order);
+            row.innerHTML = `
+            <td>${order.symbol}</td>
+            <td>${order.quantity}</td>
+            <td>${priceDisplay}</td>
+            <td>${order.order_side}</td>
+            <td>${this.orderTypeMap[order.order_type]}</td>
+            <td><button data-order-id="${order.id}">Remove</button></td>
+        `;
+            this.ordersTableBody.appendChild(row);
+
+            // Bind the removeOrderHandler to the Remove button
+            const removeButton = row.querySelector('button');
+            removeButton.addEventListener('click', () => this.removeOrder(order.id));
+        }
     }
 
     removeOrder(orderId) {

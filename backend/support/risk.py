@@ -20,22 +20,22 @@ class RiskManager:
         self.locks = {}
         self.used_order_ids = set()
 
-    def lock(self, event: PlaceOrderEvent):
+    def lock(self, event: OrderEvent):
         # Get the lock for this ticker
         lock = self.locks.setdefault(event.ticker, threading.Lock())
         lock.acquire()
 
-    def check_duplicate(self, event: PlaceOrderEvent):
+    def check_duplicate(self, event: OrderEvent):
         # Check if the order is a duplicate
         pass
 
-    def unlock(self, event: PlaceOrderEvent):
+    def unlock(self, event: OrderEvent):
         # Get the lock for this ticker
         lock = self.locks.get(event.ticker)
         if lock is not None and lock.locked():
             lock.release()
 
-    def check_risk(self, event: PlaceOrderEvent):
+    def check_risk(self, event: OrderEvent):
         # Check if the order is a duplicate
         if event.order_id in self.used_order_ids:
             event_bus.publish(LogEvent('Risk check failed: duplicate order_id', LogLevel.ERROR))

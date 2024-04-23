@@ -13,16 +13,24 @@ route_bp = Blueprint('route', __name__)
 @route_bp.route('/trade/order', methods=['POST'])
 def place_order():
     order_data = request.get_json()
-    trail_type, trail_value = convert_to_TrailType_and_TrailValue(order_data)
-    event = PlaceOrderEvent(datetime.now(), 
-                            ticker=order_data['symbol'], 
-                            order_quantity=order_data['quantity'], 
-                            order_price=order_data['price'], 
-                            order_type=convert_to_OrderType[order_data['order_type']], 
-                            order_side=convert_to_OrderSide[order_data['order_side']], 
-                            order_id=order_data['id'],
-                            trail_type=trail_type,
-                            trail_value=trail_value)
+    isTrailOrder, trail_type, trail_value = convert_to_TrailType_and_TrailValue(order_data)
+    if isTrailOrder:
+        event = TrailOrderEvent(datetime.now(),
+                                ticker=order_data['symbol'],
+                                order_quantity=order_data['quantity'],
+                                order_type=convert_to_OrderType[order_data['order_type']],
+                                order_side=convert_to_OrderSide[order_data['order_side']],
+                                order_id=order_data['id'],
+                                trail_type=trail_type,
+                                trail_value=trail_value)
+    else:
+        event = OrderEvent(datetime.now(), 
+                                ticker=order_data['symbol'], 
+                                order_quantity=order_data['quantity'], 
+                                order_price=order_data['price'], 
+                                order_type=convert_to_OrderType[order_data['order_type']], 
+                                order_side=convert_to_OrderSide[order_data['order_side']], 
+                                order_id=order_data['id'])
     event_bus.publish(event)
     return jsonify({"message": "Order placed"})
 

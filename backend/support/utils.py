@@ -24,7 +24,7 @@ convert_from_OrderType_to_TrdType= {
     OrderType.TS: TrdType.TRAILING_STOP
 }
 
-convert_from_OrderSide_to_TrailType = {
+convert_from_TrailType_to_MooMooTrailType = {
     None: None,
     TrailType.AMOUNT: MooMooTrailType.AMOUNT,
     TrailType.RATIO: MooMooTrailType.RATIO
@@ -67,6 +67,11 @@ convert_to_filter_trdmarket = {
     'FUTURES_SIMULATE_JP': TrdMarket.FUTURES_SIMULATE_JP
 }
 
+convert_to_TrailType = {
+    'AMOUNT': TrailType.AMOUNT,
+    'RATIO': TrailType.RATIO
+}
+
 def format_log(event: LogEvent):
     # 将时间格式化为包含毫秒的字符串
     timestamp = event.event_timestamp.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
@@ -75,9 +80,7 @@ def format_log(event: LogEvent):
     return f"{timestamp} - {event.message}"
 
 def convert_to_TrailType_and_TrailValue(order_data):
-    if 'trail_amount' in order_data and order_data['trail_amount'] is not None:
-        return TrailType.AMOUNT, order_data['trail_amount']
-    elif 'trail_ratio' in order_data and order_data['trail_ratio'] is not None:
-        return TrailType.RATIO, order_data['trail_ratio']
+    if 'trail_type' in order_data and order_data['trail_type'] is not None:
+        return True, convert_to_TrailType[order_data['trail_type']], order_data['trail_value']
     else:
-        return None, None
+        return False, None, None

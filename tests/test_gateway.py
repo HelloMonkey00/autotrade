@@ -1,12 +1,12 @@
 from datetime import datetime
 import unittest
 from backend.trade.gateway import on_trade_order
-from event.event import PlaceOrderEvent, OrderSide, OrderType
+from event.event import OrderEvent, OrderSide, OrderType
 
 class TestGateway(unittest.TestCase):
     def test_on_trade_order(self):
         # 创建一个 PlaceOrderEvent 对象
-        event = PlaceOrderEvent(
+        event = OrderEvent(
             order_side=OrderSide.BUY,
             order_type=OrderType.LMT,
             order_price=100.0,

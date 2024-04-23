@@ -41,15 +41,19 @@ class TrailType(Enum):
         return self.name
     
 @dataclass
-class PlaceOrderEvent(Event):
+class OrderEvent(Event):
     order_id: str
     ticker: str
     order_quantity: int
     order_type: OrderType = OrderType.LMT
     order_side: OrderSide = OrderSide.BUY
     order_price: Optional[float] = None
+
+@dataclass
+class TrailOrderEvent(OrderEvent):
     trail_type: Optional[TrailType] = None
     trail_value: Optional[float] = None
+    retry: Optional[int] = 0
 
 
 @dataclass
