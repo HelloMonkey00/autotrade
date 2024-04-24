@@ -53,8 +53,8 @@ export class TradeManager {
                 trailRatio = 20;
             }
 
-            const extraOrder1 = { symbol, quantity, price: 0, order_side: side, order_type: "8", id: Date.now() + 1, trail_type: "AMOUNT", trail_value: trailAmount };
-            const extraOrder2 = { symbol, quantity, price: 0, order_side: side, order_type: "8", id: Date.now() + 2, trail_type: "RATIO", trail_value: trailRatio };
+            const extraOrder1 = { symbol, quantity, price: 0, order_side: "SELL", order_type: "8", id: Date.now() + 1, trail_type: "AMOUNT", trail_value: trailAmount };
+            const extraOrder2 = { symbol, quantity, price: 0, order_side: "SELL", order_type: "8", id: Date.now() + 2, trail_type: "RATIO", trail_value: trailRatio };
 
             // Add the extra orders to the table
             this.addOrderToTable(extraOrder1);
