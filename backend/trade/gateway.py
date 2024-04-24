@@ -77,7 +77,7 @@ def on_trail_order(trailOrderEvent: TrailOrderEvent):
         trd_env = TrdEnv.SIMULATE if simulate else TrdEnv.REAL
         acc_id = ConfigManager.get_instance().get_int('acc_id', 0, 'MOOMOO')
         
-        for _ in range(5):
+        for _ in range(100):
             ret, data = trd_ctx.place_order(price=0, order_type=trd_type, qty=trailOrderEvent.order_quantity, 
                                             code=trailOrderEvent.ticker, trd_side=trd_side, trd_env=trd_env,
                                             acc_id = acc_id, trail_type= trail_type, trail_value=trailOrderEvent.trail_value)
@@ -88,7 +88,7 @@ def on_trail_order(trailOrderEvent: TrailOrderEvent):
                 event_bus.publish(LogEvent('place_trail_order error: ' + str(data), LogLevel.ERROR))
                 time.sleep(1) # 1秒后重试
                 trailOrderEvent.retry += 1
-                if trailOrderEvent.retry < 5:
+                if trailOrderEvent.retry < 10:
                     event_bus.publish(LogEvent('place_trail_order retry: ' + str(trailOrderEvent.retry), LogLevel.ERROR))
                 else:
                     event_bus.publish(LogEvent('place_trail_order failed after 5 retries', LogLevel.ERROR))
