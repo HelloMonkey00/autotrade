@@ -88,7 +88,7 @@ def on_trail_order(trailOrderEvent: TrailOrderEvent):
                 event_bus.publish(LogEvent('place_trail_order error: ' + str(data), LogLevel.ERROR))
                 time.sleep(1) # 1秒后重试
                 trailOrderEvent.retry += 1
-                if trailOrderEvent.retry < 10:
+                if trailOrderEvent.retry < 5:
                     event_bus.publish(LogEvent('place_trail_order retry: ' + str(trailOrderEvent.retry), LogLevel.ERROR))
                 else:
                     event_bus.publish(LogEvent('place_trail_order failed after 5 retries', LogLevel.ERROR))

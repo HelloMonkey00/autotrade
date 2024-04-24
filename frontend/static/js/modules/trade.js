@@ -22,7 +22,8 @@ export class TradeManager {
     }
 
     addOrder(side) {
-        const symbol = this.symbolInput.value;
+        const symbol = this.symbolInput.value.toUpperCase();
+        this.symbolInput.value = symbol;
         const quantity = parseInt(this.quantityInput.value);
         const orderType = this.orderTypeSelect.value;
 
