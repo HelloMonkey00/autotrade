@@ -32,7 +32,7 @@ export class TradeManager {
         }
 
         const price = parseFloat(this.priceInput.value);
-        if (isNaN(price) || price <= 0) {
+        if (isNaN(price) || price < 0) {
             return;
         }
 

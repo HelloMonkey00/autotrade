@@ -35,10 +35,10 @@
                     </div>
                     <div class="trade-input">
                         <label for="quantity-input">Quantity:</label>
-                        <input type="number" id="quantity-input" placeholder="Enter stock quantity">
+                        <input type="number" id="quantity-input" placeholder="Enter stock quantity" value="1">
                         <label for="price-input">Price:</label>
-                        <input type="number" id="price-input" placeholder="Enter price">
-                        <select id="order-type-select">
+                        <input type="number" id="price-input" placeholder="Enter price" value="0">
+                        <select id="order-type-select" value="2">
                             <option value="1">LMT (限价单)</option>
                             <option value="2">MKT (市价单)</option>
                             <option value="3">STL (止损限价单)</option>
@@ -78,6 +78,52 @@
                     </div>
                 </div>
             </section>
+            <section id="semi-auto-trade">
+                <h2>Semi-Automatic Trade</h2>
+                <textarea id="json-data" readonly></textarea>
+                <div class="trade-input">
+                    <label for="level-select-call">Level:</label>
+                    <select id="level-select-call">
+                        <option value="-1">-1</option>
+                        <option value="0">0</option>
+                        <option value="1" selected>1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">+10</option>
+                    </select>
+                    <label for="quantity-input-call">Quantity:</label>
+                    <input type="number" id="quantity-input-call" placeholder="Enter quantity" value="1">
+                    <button id="call-button">Call</button>
+                </div>
+                <div class="trade-input">
+                    <label for="level-select-put">Level:</label>
+                    <select id="level-select-put">
+                        <option value="-10">-10</option>
+                        <option value="-9">-9</option>
+                        <option value="-8">-8</option>
+                        <option value="-7">-7</option>
+                        <option value="-6">-6</option>
+                        <option value="-5">-5</option>
+                        <option value="-4">-4</option>
+                        <option value="-3">-3</option>
+                        <option value="-2">-2</option>
+                        <option value="-1" selected>-1</option>
+                        <option value="0">0</option>
+                        <option value="1">+1</option>
+                    </select>
+                    <label for="quantity-input-put">Quantity:</label>
+                    <input type="number" id="quantity-input-put" placeholder="Enter quantity" value="1">
+                    <button id="put-button">Put</button>
+                </div>
+            </section>
+        </section>
+        <section id="chart-portfolio">
             <section id="portfolio">
                 <h2>Portfolio</h2>
                 <table id="portfolio-table">
@@ -92,9 +138,6 @@
                     <tbody></tbody>
                 </table>
             </section>
-        </section>
-        <section id="chart-portfolio">
-            <canvas id="chart-container"></canvas>
             <section id="news">
                 <h2>Latest News</h2>
                 <div id="news-container">
@@ -104,7 +147,6 @@
         </section>
     </main>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
 
 </body>
