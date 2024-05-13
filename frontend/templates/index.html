@@ -80,8 +80,8 @@
             </section>
             <section id="semi-auto-trade">
                 <h2>Semi-Automatic Trade</h2>
-                <textarea id="json-data" readonly></textarea>
                 <div class="trade-input">
+                    <h3>Call Configuration</h3>
                     <label for="level-select-call">Level:</label>
                     <select id="level-select-call">
                         <option value="-1">-1</option>
@@ -99,9 +99,9 @@
                     </select>
                     <label for="quantity-input-call">Quantity:</label>
                     <input type="number" id="quantity-input-call" placeholder="Enter quantity" value="1">
-                    <button id="call-button">Call</button>
                 </div>
                 <div class="trade-input">
+                    <h3>Put Configuration</h3>
                     <label for="level-select-put">Level:</label>
                     <select id="level-select-put">
                         <option value="-10">-10</option>
@@ -119,7 +119,12 @@
                     </select>
                     <label for="quantity-input-put">Quantity:</label>
                     <input type="number" id="quantity-input-put" placeholder="Enter quantity" value="1">
-                    <button id="put-button">Put</button>
+                </div>
+                <div class="trade-actions">
+                    <h3>Actions</h3>
+                    <button id="place-order">Place Order</button>
+                    <button id="close-position">Close Position</button>
+                    <button id="modify-position">Modify Position</button>
                 </div>
             </section>
         </section>

@@ -20,6 +20,17 @@ class RiskManager:
         self.locks = {}
         self.used_order_ids = set()
 
+    def lock(self, ticker: str):
+        # Get the lock for this ticker
+        lock = self.locks.setdefault(ticker, threading.Lock())
+        lock.acquire()
+    
+    def unlock(self, ticker: str):
+        # Get the lock for this ticker
+        lock = self.locks.get(ticker)
+        if lock is not None and lock.locked():
+            lock.release()
+        
     def lock(self, event: OrderEvent):
         # Get the lock for this ticker
         lock = self.locks.setdefault(event.ticker, threading.Lock())

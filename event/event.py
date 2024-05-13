@@ -58,7 +58,34 @@ class TrailOrderEvent(OrderEvent):
 
 @dataclass
 class ClosePositionEvent(Event):
-    pass
+    ticker: str
+
+class Command(Enum):
+    PLACE_ORDER = 'placeOrder'
+    CLOSE_POSITION = 'closePosition'
+    MODIFY_POSITION = 'modifyPosition'
+
+    def __str__(self):
+        return self.name
+@dataclass
+class SemiTradeCommandEvent(Event):
+    command: Command
+    call_quantity: int = 0
+    call_level: int = 0
+    put_quantity: int = 0
+    put_level: int = 0
+    order_id: Optional[str] = None
+
+    @classmethod
+    def from_request(cls, request_data):
+        return cls(
+            event_timestamp=datetime.now(),
+            command=Command(request_data['command']),
+            call_quantity=int(request_data['call']['quantity']),
+            call_level=int(request_data['call']['level']),
+            put_quantity=int(request_data['put']['quantity']),
+            put_level=int(request_data['put']['level'])
+        )
 
 @dataclass
 class GetAccountEvent(Event):
@@ -111,3 +138,17 @@ class LogEvent(Event):
 
     def to_dict(self):
         return {'message': self.message, 'level': str(self.log_level), 'timestamp': self.event_timestamp.strftime("%Y-%m-%d %H:%M:%S.%f")}
+
+class SemiTradeConnectedEvent(Event):
+    pass
+
+class OptionsQuoteEvent(Event):
+    code: str
+    price: float = None
+    higher_code_put: str = None
+    lower_code_put: str = None
+    higher_code_call: str = None
+    lower_code_call: str = None
+
+    def to_dict(self):
+        return {'code': self.code, 'price': self.price, 'higher_code_put': self.higher_code_put, 'lower_code_put': self.lower_code_put, 'higher_code_call': self.higher_code_call, 'lower_code_call': self.lower_code_call, 'timestamp': self.event_timestamp.strftime("%Y-%m-%d %H:%M:%S.%f")}

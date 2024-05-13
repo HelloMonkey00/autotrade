@@ -4,8 +4,12 @@ from event.event import *
 from event.eventbus import event_bus
 from backend.support.utils import convert_to_OrderType, convert_to_OrderSide, convert_to_TrailType_and_TrailValue
 from .config import ConfigManager
-from .market.marketdata import *
+from .market.push import *
+from .market.market import *
 from .trade.gateway import *
+from .trade.algo import *
+from backend import socketio
+import uuid
 
 
 route_bp = Blueprint('route', __name__)
@@ -36,7 +40,7 @@ def place_order():
 
 @route_bp.route('/environment', methods=['GET'])
 def get_environment():
-    event_bus.publish(GetAccountEvent(datetime.now()))
+    
     return jsonify({"environment": "SIMULATION" if ConfigManager.get_instance().is_simulate() else "REAL"});
 
 @route_bp.route('/trade/close', methods=['POST'])
@@ -53,42 +57,20 @@ def get_quote_route():
     event_bus.publish(event)
     return jsonify({"message": "Quote request submitted"})
 
-@route_bp.route('/market/history/<symbol>')
-def get_historical_data_route(symbol):
-    event = HistoricalDataEvent(symbol)
-    event_bus.publish(event)
-    return jsonify({"message": "Historical data request submitted"})
-
-@route_bp.route('/market/news')
-def get_news_route():
-    event = NewsEvent()
-    event_bus.publish(event)
-    return jsonify({"message": "News request submitted"})
-
-@route_bp.route('/auth/login', methods=['POST'])
-def login_route():
-    event = LoginEvent()
-    event_bus.publish(event)
-    return jsonify({"message": "Login request submitted"})
-
-@route_bp.route('/auth/verify', methods=['POST'])
-def verify_route():
-    event = VerifyEvent()
-    event_bus.publish(event)
-    return jsonify({"message": "Verify request submitted"})
-
-@route_bp.route('/auth/env', methods=['PUT'])
-def set_env_route():
-    env = request.args.get('env')
-    event = SetEnvEvent(env)
-    event_bus.publish(event)
-    return jsonify({"message": "Set env request submitted"})
-
-@route_bp.route('/auth/status')
-def get_status_route():
-    event = GetStatusEvent()
-    event_bus.publish(event)
-    return jsonify({"message": "Get status request submitted"})
-
-if __name__ == '__main__':
+@socketio.on('connect', namespace='/messages')
+def handle_connect():
+    event_bus.publish(LogEvent('Connected', LogLevel.INFO))
+    event_bus.publish(GetAccountEvent(datetime.now()))
     pass
+
+@route_bp.route('/semi-trade/command', methods=['POST'])
+def semi_trade_command_route():
+    try:
+        command_data = request.get_json()
+        event = SemiTradeCommandEvent.from_request(command_data)
+        event.order_id = str(uuid.uuid4())
+        event_bus.publish(event)
+        return jsonify({"message": "Semi-trade command submitted"})
+    except Exception as e:
+        event_bus.publish(LogEvent('Error: ' + str(e), LogLevel.ERROR))
+        return jsonify({"message": "Error: " + str(e)})
