@@ -23,7 +23,6 @@ def on_trade_order(tradeOrderEvent: OrderEvent):
         acc_id = ConfigManager.get_instance().get_int('acc_id', 0, 'MOOMOO')
         RiskManager.get_instance().lock(tradeOrderEvent)
         ret, data = RiskManager.get_instance().check_risk(tradeOrderEvent)
-        ret = RET_OK
         if ret != RET_OK:
             event_bus.publish(LogEvent('Risk check failed: ' + data, LogLevel.ERROR))
             return
