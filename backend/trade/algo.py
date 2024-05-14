@@ -93,6 +93,8 @@ def cancel_order(order_list):
             ret, data = trd_ctx.modify_order(ModifyOrderOp.CANCEL, order_id, qty=0, price=0, trd_env=trd_env, acc_id=acc_id)
             if ret != RET_OK:
                 event_bus.publish(LogEvent('order_list_cancel error: ' + str(data), LogLevel.ERROR))
+            else:
+                event_bus.publish(LogEvent('order_list_cancel success: ' + str(data), LogLevel.INFO))
     finally:
         Context.get_instance().close(trd_ctx)
 
