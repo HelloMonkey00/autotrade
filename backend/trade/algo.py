@@ -3,7 +3,7 @@ from backend.support.context import Context
 from backend.support.risk import RiskManager
 from event.event import *
 from event.eventbus import event_bus
-from moomoo import RET_OK, ModifyOrderOp, TrdEnv, OptionType
+from moomoo import RET_OK, ModifyOrderOp, TrdEnv, OrderStatus
 from backend.support.utils import convert_from_OrderSide_to_TrdSide, convert_from_OrderType_to_TrdType, convert_from_TrailType_to_MooMooTrailType
 import pytz
 import yfinance as yf
@@ -61,13 +61,15 @@ def find_level_strike_code(option_chain_data, last_price, level):
     # SPXW240513C04000000 -> US.SPXW240513C4000000
     return 'US.' + row['contractSymbol'][:11] + row['contractSymbol'][12:]
 
+status_filter_list = [OrderStatus.NONE, OrderStatus.WAITING_SUBMIT,OrderStatus.SUBMITTING,OrderStatus.SUBMITTED,OrderStatus.FILLED_PART]
+
 def get_undo_order_list():
     try:
         simulate = ConfigManager.get_instance().is_simulate()
         trd_env = TrdEnv.SIMULATE if simulate else TrdEnv.REAL
         acc_id = ConfigManager.get_instance().get_int('acc_id', 0, 'MOOMOO')
         trd_ctx = Context.get_instance().open()
-        ret, data = trd_ctx.order_list_query(trd_env=trd_env, acc_id=acc_id)
+        ret, data = trd_ctx.order_list_query(trd_env=trd_env, acc_id=acc_id, status_filter_list=status_filter_list)
         if ret != RET_OK:
             event_bus.publish(LogEvent('order_list_query error: ' + str(data), LogLevel.ERROR))
             return None
@@ -130,17 +132,13 @@ def handle_close_position(event:SemiTradeCommandEvent):
     sequence = 0
     for index, row in position_data.iterrows():
         ticker = row['code']
-        try:
-            # Lock the ticker to prevent other threads from modifying the position
-            RiskManager.get_instance().lock(ticker)
-            ticker_position = get_position(ticker)
-            if ticker_position is not None:
-                for index, row in ticker_position.iterrows():
+        ticker_position = get_position(ticker)
+        if ticker_position is not None:
+            for index, row in ticker_position.iterrows():
+                if row['can_sell_qty'] > 0:
                     sequence += 1
-                    order = OrderEvent(datetime.now(), ticker=ticker, order_quantity=row['can_sell_qty'], order_type=OrderType.MKT, order_side=OrderSide.SELL, order_id=event.order_id + "_close_" + sequence)
+                    order = OrderEvent(event_timestamp=datetime.now(), ticker=ticker, order_quantity=int(row['can_sell_qty']), order_type=OrderType.MKT, order_side=OrderSide.SELL, order_id=event.order_id + "_close_" + str(sequence))
                     event_bus.publish(order)
-        finally:
-            RiskManager.get_instance().unlock(ticker)
 
 def handle_modify_position(event:SemiTradeCommandEvent):
     handle_close_position(event)

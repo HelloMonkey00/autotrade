@@ -27,7 +27,8 @@ def on_trade_order(tradeOrderEvent: OrderEvent):
             event_bus.publish(LogEvent('Risk check failed: ' + data, LogLevel.ERROR))
             return
         else:
-            ret, data = trd_ctx.place_order(tradeOrderEvent.order_price, order_type=trd_type, qty=tradeOrderEvent.order_quantity, 
+            order_price = 0.0 if tradeOrderEvent.order_type == OrderType.MKT else tradeOrderEvent.order_price
+            ret, data = trd_ctx.place_order(price=order_price, order_type=trd_type, qty=tradeOrderEvent.order_quantity, 
                                             code=tradeOrderEvent.ticker, trd_side=trd_side, trd_env=trd_env,
                                             acc_id = acc_id)
             RiskManager.get_instance().unlock(tradeOrderEvent)

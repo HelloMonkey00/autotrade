@@ -19,32 +19,34 @@ class RiskManager:
     def __init__(self):
         self.locks = {}
         self.used_order_ids = set()
-
-    def lock(self, ticker: str):
-        # Get the lock for this ticker
-        lock = self.locks.setdefault(ticker, threading.Lock())
-        lock.acquire()
     
-    def unlock(self, ticker: str):
-        # Get the lock for this ticker
-        lock = self.locks.get(ticker)
-        if lock is not None and lock.locked():
-            lock.release()
+    def unlock(self, x):
+        if isinstance(x, str):
+            # Get the lock for this ticker
+            lock = self.locks.get(x)
+            if lock is not None and lock.locked():
+                lock.release()
+        elif isinstance(x, OrderEvent):
+            # Get the lock for this ticker
+            lock = self.locks.get(x.ticker)
+            if lock is not None and lock.locked():
+                lock.release()
         
-    def lock(self, event: OrderEvent):
-        # Get the lock for this ticker
-        lock = self.locks.setdefault(event.ticker, threading.Lock())
-        lock.acquire()
+    def lock(self, x):
+        if isinstance(x, OrderEvent):
+            # Get the lock for this ticker
+            lock = self.locks.setdefault(x.ticker, threading.Lock())
+            if not lock.acquire(timeout=5):  # Check if the lock was acquired
+                raise TimeoutError(f"Unable to acquire lock for {x.ticker} within 5 seconds")
+        elif isinstance(x, str):
+            # Get the lock for this ticker
+            lock = self.locks.setdefault(x, threading.Lock())
+            if not lock.acquire(timeout=5):  # Check if the lock was acquired
+                raise TimeoutError(f"Unable to acquire lock for {x} within 5 seconds")
 
     def check_duplicate(self, event: OrderEvent):
         # Check if the order is a duplicate
         pass
-
-    def unlock(self, event: OrderEvent):
-        # Get the lock for this ticker
-        lock = self.locks.get(event.ticker)
-        if lock is not None and lock.locked():
-            lock.release()
 
     def check_risk(self, event: OrderEvent):
         # Check if the order is a duplicate
@@ -58,8 +60,9 @@ class RiskManager:
         trd_ctx = Context.get_instance().open()
         trd_type = convert_from_OrderType_to_TrdType[event.order_type]
         trd_env = TrdEnv.SIMULATE if ConfigManager.get_instance().is_simulate() else TrdEnv.REAL
+        order_price = 0.0 if event.order_type == OrderType.MKT else event.order_price
         ret, data = trd_ctx.acctradinginfo_query(order_type=trd_type, code=event.ticker, acc_id=acc_id,
-                                                price=event.order_price, trd_env=trd_env)
+                                                price=order_price, trd_env=trd_env)
         if ret != RET_OK:
             event_bus.publish(LogEvent('acctradinginfo_query error: ' + str(data), LogLevel.ERROR))
             return -1, 'Risk check failed: acctradinginfo_query error'

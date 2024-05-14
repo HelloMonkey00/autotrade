@@ -37,22 +37,10 @@ class Context:
         quote_ctx = OpenQuoteContext(host='127.0.0.1', port=11111)
         return quote_ctx
 
-    def close(self):
-        if not self._trd_ctx:
-            self._trd_ctx.close()
-            
-    def close(self, trd_ctx: OpenSecTradeContext):
+    def close(self, trd_ctx):
         if not trd_ctx:
             trd_ctx.close()
     
-    def close(self, trd_ctx: OpenFutureTradeContext):
-        if not trd_ctx:
-            trd_ctx.close()
-    
-    def close(self, quote_ctx: OpenQuoteContext):
-        if not quote_ctx:
-            quote_ctx.close()
-
     def close_futures(self):
         if not self._futures_trd_ctx:
             self._futures_trd_ctx.close()
