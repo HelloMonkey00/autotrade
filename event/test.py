@@ -1,11 +1,52 @@
-from moomoo import *
+import requests
+from bs4 import BeautifulSoup
+import time
 
-quote_ctx = OpenQuoteContext(host='127.0.0.1', port=11111)  # 创建行情对象
-(quote_ctx.get_market_snapshot('HK.00700'))  # 获取港股 HK.00700 的快照数据
-quote_ctx.close() # 关闭对象，防止连接条数用尽
+def fetch_data(url, proxy, data_points):
+    # Set up the SOCKS5 proxy
+    proxies = {
+        'http': f'socks5://{proxy}',
+        'https': f'socks5://{proxy}',
+    }
 
+    # Send the HTTP request
+    response = requests.get(url)
 
-trd_ctx = OpenSecTradeContext(host='127.0.0.1', port=11111)  # 创建交易对象
-print(trd_ctx.place_order(price=500.0, qty=100, code="HK.00700", trd_side=TrdSide.BUY, trd_env=TrdEnv.SIMULATE))  # 模拟交易，下单（如果是真实环境交易，在此之前需要先解锁交易密码）
+    # Parse the HTML
+    soup = BeautifulSoup(response.text, 'html.parser')
 
-trd_ctx.close()  # 关闭对象，防止连接条数用尽
+    # Extract the data points
+    data = soup.select(data_points)
+
+    return data
+
+# Example usage:
+proxy = '43.130.122.195:9080'  # Replace with your SOCKS5 proxy
+url = 'http://www.sca.isr.umich.edu/'  # Replace with the URL you want to fetch
+data_points = '#front_table tr'  # Replace with the data points you want to extract
+# Start the timer
+start_time = time.perf_counter()
+
+rows = fetch_data(url, proxy, data_points)
+
+# Stop the timer
+end_time = time.perf_counter()
+
+# Calculate the elapsed time
+elapsed_time = end_time - start_time
+
+print(f'Time taken to fetch the webpage: {elapsed_time:.6f} seconds')
+# Initialize an empty list to store the data
+data = []
+
+# Iterate over each row
+for row in rows:
+    # Extract all cells from the row
+    cells = row.select('td')
+
+    # Check if the first cell's text is "Index of Consumer Sentiment"
+    if cells and cells[0].text.strip() == 'Index of Consumer Sentiment':
+        # If it is, add the text of all other cells to the data list
+        data.extend(cell.text.strip() for cell in cells[0:])
+
+print(data)
